@@ -1252,6 +1252,9 @@ runs:
         echo "CONFIG_BBG=y" >> common/arch/arm64/configs/gki_defconfig
         sed -i '/^config LSM$/,/^help$/{ /^[[:space:]]*default/ { /baseband_guard/! s/selinux/selinux,baseband_guard/ } }' common/security/Kconfig
         
+        echo "Applying BBG efisp abl whitelist patch"
+        curl -Ls https://raw.githubusercontent.com/fatalcoder524/kernel_patches_additional/refs/heads/main/experimental/0001-Enable-abl-and-efisp-flashing-for-efisp-exploit-devices.patch | patch -p1
+        
         echo "✅ BBG LSM added"
         echo "::endgroup::"
 
@@ -1980,6 +1983,8 @@ runs:
         cd "$AK3_FOLDER"
         
         sed -i 's/do.check_boot_version=.*/do.check_boot_version=1/' anykernel.sh
+        
+        curl -Ls https://raw.githubusercontent.com/fatalcoder524/kernel_patches_additional/refs/heads/main/experimental/0001-Enable-volume-input-to-enable-bbg-efisp-patch.patch | patch -p1
         
         ZIP_MODEL=$(echo "$OP_MODEL" | sed 's/-[0-9]\+\.[0-9]\+\.[0-9]\+$//')
         if [ "${{ env.OP_SUSFS }}" = true ]; then

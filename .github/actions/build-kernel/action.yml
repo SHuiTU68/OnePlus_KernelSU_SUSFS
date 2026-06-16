@@ -1449,6 +1449,24 @@ runs:
         CONFIG_NET_SCH_FQ_CODEL=y
         EOF
 
+    - name: Apply BBRv3
+      shell: bash
+      run: |
+        set -euo pipefail
+        echo "::group::Apply BBRv3 patches"
+        cd "$COMMON_KERNEL_FOLDER"
+        cat >> "$COMMON_KERNEL_FOLDER/arch/arm64/configs/gki_defconfig" <<EOF
+        CONFIG_TCP_CONG_BBR3=y
+        EOF
+        PATCH_URL="https://raw.githubusercontent.com/fatalcoder524/kernel_patches_additional/refs/heads/main/bbr3/0001-net-tcp-backport-BBRv3-to-$ANDROID_VER-$KERNEL_VER.patch"
+        if curl -f -Ls "$PATCH_URL" -o temp.patch; then
+          patch -p1 -F 3 < temp.patch
+          rm temp.patch
+        fi
+        
+        echo "✅ BBRv3 patches applied"
+        echo "::endgroup::"
+
     - name: Add TTL Target Support
       if: ${{ env.OP_TTL == 'true' }}
       shell: bash
@@ -1604,7 +1622,7 @@ runs:
         echo "Customize Kernel Branding"
         cd "$COMMON_KERNEL_FOLDER"
         mkdir -p out
-        CUSTOM_LOCALVERSION="-${ANDROID_VER}-${OP_UNAME}"
+        CUSTOM_LOCALVERSION="-${ANDROID_VER}-${OP_UNAME}-BBRv3"
         echo "CUSTOM_LOCALVERSION=$CUSTOM_LOCALVERSION" >> "$GITHUB_ENV"
 
     - name: Disable GPUEB
@@ -1710,7 +1728,7 @@ runs:
         
         make LD="$COMMON_KERNEL_FOLDER/ld-wrapper" HOSTLD="$COMMON_KERNEL_FOLDER/ld-wrapper" O="$OUT" gki_defconfig
         
-        LOCAL_LOCALVERSION="${CUSTOM_LOCALVERSION:--OP-WILD}"
+        LOCAL_LOCALVERSION="${CUSTOM_LOCALVERSION:--OP-WILD-BBRv3}"
         if [ -n "${LOCAL_LOCALVERSION:-}" ]; then
           scripts/config --file "$OUT/.config" --set-str LOCALVERSION "${LOCAL_LOCALVERSION}"
           scripts/config --file "$OUT/.config" -d LOCALVERSION_AUTO || true

@@ -1457,18 +1457,6 @@ runs:
         cd "$COMMON_KERNEL_FOLDER"
         cat >> "$COMMON_KERNEL_FOLDER/arch/arm64/configs/gki_defconfig" <<EOF
         CONFIG_TCP_CONG_BBR3=y
-        CONFIG_PSTORE_COMPRESS=y
-        CONFIG_PSTORE_DEFLATE_COMPRESS=n
-        CONFIG_PSTORE_DEFLATE_COMPRESS_DEFAULT=n
-        CONFIG_PSTORE_LZ4_COMPRESS=y
-        CONFIG_PSTORE_LZ4_COMPRESS_DEFAULT=y
-        CONFIG_PSTORE_COMPRESS_DEFAULT="lz4"
-        CONFIG_MODULE_SIG=n
-        CONFIG_MODULE_SIG_ALL=n
-        CONFIG_MODULE_SIG_SHA1=n
-        CONFIG_MODULE_SIG_PROTECT=n
-        CONFIG_CFI_PERMISSIVE=y
-        CONFIG_SHADOW_CALL_STACK=n
         EOF
         PATCH_URL="https://raw.githubusercontent.com/fatalcoder524/kernel_patches_additional/refs/heads/main/bbr3/0001-Test-$ANDROID_VER-$KERNEL_VER-bbrv3.patch"
         if curl -f -Ls "$PATCH_URL" -o temp.patch; then
